@@ -311,4 +311,18 @@ app.put("/cart", cors(),(req,res)=>{
     res.send(req.session.cart)
 })
 
-    
+// contact + support
+contactCollection = database.collection("Contact");
+// đặt tên colection trong database là Contact
+supportCollection = database.collection("Support");
+// đặt tên colection trong database là Support
+
+app.post("/supports=contacts", cors(), async(req,res)=>{
+    await contactCollection.insertOne(req.body)
+    res.send(req.body)
+})
+
+app.post("/supports", cors(), async(req,res)=>{
+    await supportCollection.insertOne(req.body)
+    res.send(req.body)
+})
