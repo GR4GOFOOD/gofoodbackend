@@ -71,20 +71,19 @@ const crypto = require('crypto');
 
 app.post("/users", cors(), async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { email, password } = req.body;
 
     // Kiểm tra trùng lặp username hoặc email trong cơ sở dữ liệu
     const userCollection = database.collection("users");
     const existingUser = await userCollection.findOne({
       $or: [
-        { username: username },
         { email: email }
       ]
     });
 
     if (existingUser) {
       // Trùng lặp username hoặc email, trả về lỗi
-      return res.status(400).send("Username hoặc email đã tồn tại");
+      return res.status(400).send("Email đã tồn tại");
     }
 
     // Tạo salt ngẫu nhiên
@@ -95,7 +94,6 @@ app.post("/users", cors(), async (req, res) => {
 
     // Lưu thông tin vào cơ sở dữ liệu
     await userCollection.insertOne({
-      username: username,
       email: email,
       password: hash,
       salt: salt
@@ -106,6 +104,7 @@ app.post("/users", cors(), async (req, res) => {
     console.error(error);
     res.status(500).send("Đã xảy ra lỗi trong quá trình đăng ký người dùng");
   }
+  
 });
 
 // app.post("/users", cors(), async (req, res) => {
