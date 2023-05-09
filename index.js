@@ -6,13 +6,10 @@ app.use(morgan("combined"))
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 const bodyParser=require("body-parser")
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb' }));
-// app.use(express.json());
 const cors=require("cors");
 const fileUpload = require("express-fileupload");
 app.use(cors())
