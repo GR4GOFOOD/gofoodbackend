@@ -33,25 +33,25 @@ app.get("/",(req,res)=>{
     client = new MongoClient("mongodb://127.0.0.1:27017");
     client.connect();
     database = client.db("Gofoods");
-    accountCollection = database.collection("Account");
-    app.get("/accounts",cors(),async (req,res)=>{
+    accountCollection = database.collection("users");
+    app.get("/users",cors(),async (req,res)=>{
         const result = await accountCollection.find({}).toArray();
         res.send(result)
         }
         )
       
-app.get("/accounts/:id",cors(),async (req,res)=>{
+app.get("/users/:id",cors(),async (req,res)=>{
         var o_id = req.params["id"];
         const result = await accountCollection.find({_id:o_id}).toArray();
         res.send(result[0])
         }
         )
         
-app.post("/account",async(req,res)=>{
+app.post("/users",async(req,res)=>{
           var crypto = require('crypto');
           const salt = crypto.randomBytes(16).toString('hex');
       
-           accountCollection = database.collection("Account");
+           accountCollection = database.collection("users");
            user= req.body
       
           const hash = crypto.pbkdf2Sync(user.password, salt, 1000, 64, `sha512`).toString(`hex`);
@@ -67,7 +67,7 @@ app.post("/login",cors(),async(req,res)=>{
         Email=req.body.Email
         password=req.body.password
         var crypto = require('crypto');
-        accountCollection = database.collection("Account")
+        accountCollection = database.collection("users")
         // user= req.body
         user = await accountCollection.findOne({Email:Email})
         const salt = user.salt
