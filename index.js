@@ -13,6 +13,8 @@ app.use(express.json({limit:'10mb '}))
 app.use(express.urlencoded({limit:'10mb'}));
 app.use(express.json());
 
+const path = require("path")
+
 const cors=require("cors");
 const fileUpload = require("express-fileupload");
 app.use(cors())
@@ -464,3 +466,7 @@ app.post('/upload', (req, res)=>{
       image.mv(__dirname +'/upload'+ image.name);
       res.sendStatus(200)
       })
+const router =  require('./routes')
+app.use('/api/', router)
+
+app.use('/static', express.static(path.join(__dirname, 'public')))    
