@@ -111,7 +111,7 @@ app.post("/users", cors(), async (req, res) => {
     await userCollection.insertOne({
       email: email,
       password: hash,
-      salt: salt
+      salt: salt,
     });
 
     res.send(req.body);
