@@ -87,7 +87,7 @@ const crypto = require('crypto');
 app.post("/users", cors(), async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password)
+    console.log(email, password, salt)
     // Kiểm tra trùng lặp username hoặc email trong cơ sở dữ liệu
     const userCollection = database.collection("users");
     const existingUser = await userCollection.findOne({
