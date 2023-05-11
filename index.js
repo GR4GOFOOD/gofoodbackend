@@ -24,6 +24,7 @@ client = new MongoClient("mongodb://127.0.0.1:27017");
 client.connect();
 database = client.db("Gofoods");
 usersCollection = database.collection("users");
+productCollection= database.collection("Product")
 const crypto = require('crypto');
 // app.post("/users",cors(),async(req,res)=>{
 //     var crypto = require('crypto');
@@ -214,48 +215,19 @@ app.post("/users", cors(), async (req, res) => {
 //     res.send(newUser);
 //   });
 
-app.get("/fashions", cors(), async (reg, res)=>{
-    const result = await fashionCollection.find({}).toArray();
+app.get("/products", cors(), async (reg, res)=>{
+    const result = await productCollection.find({}).toArray();
     res.send(result)
     },
-    app.get("/fashions/:id", cors(),async(req, res)=>{
+    app.get("/products/:id", cors(),async(req, res)=>{
       var o_id = new ObjectId(req.params["id"]);
-      const result = await fashionCollection.find({_id:o_id}).toArray();
+      const result = await productCollection.find({_id:o_id}).toArray();
       res.send(result[0])
     }),
-    app.post("/fashions", cors(),async(req, res)=>{     
-      await fashionCollection.insertOne(req.body)
-      res.send(req.body)
-    }),
-    app.put("/fashions", cors(),async(req, res)=>{
-      //update json Fashion into database
-      await fashionCollection.updateOne(
-        {_id:new ObjectId(req.body._id)},//condition for update
-        {$set: {
-          style: req.body.style,
-          fashion_subject: req.body.fashion_subject,
-          fashion_detail: req.body.fashion_detail,
-          fashion_image: req.body.fashion_image
-        }}
-      )
-      //send Fashion after updating
-      var o_id= new ObjectId(req.body._id);
-      const result = await fashionCollection.find({_id:o_id}).toArray();
-      res.send(result[0])
-    }
+  
+   
     )
-    )
-    app.delete("/fashions/:id",cors(),async(req, res)=>{
-      //find detail Fashion with id
-      var o_id = new ObjectId(req.params["id"]);
-      const result = await fashionCollection.find({_id:o_id}).toArray();
-      //update json  Fashion into database
-      await fashionCollection.deleteOne(
-        {_id:o_id}
-      )
-      //send Fashion after remove
-      res.send(result[0])
-    })
+    
     var session =require("express-session");
     const {hasSubscribers} =require ('diagnostics_channel');
     app.use(session({secret: "Shh, its a secret!"}));
@@ -273,43 +245,50 @@ app.get("/fashions", cors(), async (reg, res)=>{
     })
     
 // giỏ hàng
-app.post("/cart", cors(),(req,res)=>{
-    product =req.body
-    if(req.session.carts ==null)
-    req.session.carts=[]
-    req.session.carts.push(product)
-    res.send(product)
-})
-app.get("/cart", cors(),(req,res)=>{
-    res.send(req.session.carts)
-})
+app.post("/cart", cors(), async (req, res) => {
+  // Lấy thông tin sản phẩm từ request body
+  const product = req.body;
+
+  // Thực hiện các thao tác lưu thông tin sản phẩm vào giỏ hàng (ví dụ: lưu vào MongoDB)
+
+  // Phản hồi thành công
+  res.sendStatus(200);
+});
+app.get("/cart/get", cors(),(req,res)=>{
+console.log(req.session.carts); // In ra dữ liệu giỏ hàng trong console
+res.send(req.session.carts)
+}); 
+
+
 app.get("/cart/:id",cors(),(req,res)=>{
 if (req.session.carts!=null){
-    p =req.session.carts.find(x=>x.barcode==req.body.barcode)
-    res.send(p)
+p =req.session.carts.find(x=>x.barcode==req.body.barcode)
+res.send(p)
 }
 else
 res.send(null)
 })
 app.delete("/cart/:id",cors(),(req,res)=>{
-    if(res.session.carts!=null)
-    {
-        id=req.params["id"]
-        req.session.carts =req.session.carts.filter(x => x.barcode !==id);
+if(res.session.carts!=null)
+{
+  id=req.params["id"]
+  req.session.carts =req.session.carts.filter(x => x.barcode !==id);
 
-    }
-    res.send(req.session.carts)
+}
+res.send(req.session.carts)
 })
 app.put("/cart", cors(),(req,res)=>{
-    if(req.session.carts!=null){
-        p=req.session.carts.find(x=>x.barcode ==req.body.barcode)
-        if(p!=null)
-        {
-            p.quantity=req.body.quantity
-        }
-    }
-    res.send(req.session.cart)
+if(req.session.carts!=null){
+  p=req.session.carts.find(x=>x.barcode ==req.body.barcode)
+  if(p!=null)
+  {
+      p.quantity=req.body.quantity
+  }
+}
+res.send(req.session.cart)
 })
+
+
 
     
 
