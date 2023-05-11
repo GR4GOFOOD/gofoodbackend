@@ -364,27 +364,35 @@ app.post("/account",async(req,res)=>{
           await accountCollection.insertOne(user)
           res.send(req.body)
       })
-      
-app.post("/login",cors(),async(req,res)=>{
-        Email=req.body.Email
-        password=req.body.password
-        var crypto = require('crypto');
-        accountCollection = database.collection("Account")
-        // user= req.body
-        user = await accountCollection.findOne({Email:Email})
-        const salt = user.salt
-        if(!user)
-        res.send({"message":"not exist"})
-        else
-        {
-        const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
-        if(hash == user.password) 
-        res.send(user)
-        
-        else
-        res.send({"Email": Email, "password": password, "message":"wrong password"}
-          )}
-        })
+ //Đăng nhập
+app.post("/login", cors(), async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  var crypto = require('crypto');
+  usersCollection = database.collection("users");
+  const user = await usersCollection.findOne({ email: email });
+  
+  if (!user) {
+    res.send({ "message": "not exist" });
+  } else {
+    const salt = user.salt;
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
+
+    if (hash === user.password) {
+      const response = {
+        code: 200,
+        message: "Đăng nhập thành công",
+        data: user
+      };
+      res.send(response);
+    } else {
+      res.send({ "email": email, "password": password, "message": "wrong password" });
+    }
+  }
+
+  return res.send(1);
+});
+
       
       
 app.put("/account", cors(), async (req, res) => {
