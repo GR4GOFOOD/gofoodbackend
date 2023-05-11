@@ -39,6 +39,7 @@ client = new MongoClient("mongodb://127.0.0.1:27017");
 client.connect();
 database = client.db("Gofoods");
 usersCollection = database.collection("users");
+productsCollection = database.collection("products");
 const crypto = require('crypto');
 // app.post("/users",cors(),async(req,res)=>{
 //     var crypto = require('crypto');
@@ -87,7 +88,7 @@ const crypto = require('crypto');
 app.post("/users", cors(), async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password, salt)
+    console.log(email, password)
     // Kiểm tra trùng lặp username hoặc email trong cơ sở dữ liệu
     const userCollection = database.collection("users");
     const existingUser = await userCollection.findOne({
@@ -179,6 +180,17 @@ app.post("/users", cors(), async (req, res) => {
 //     // });
 //     res.send(newUser);
 //   });
+// Get all product
+app.get("/products", cors(), async (reg, res)=>{
+  const result = await productsCollection.find({}).toArray();
+  res.send(result)
+  })
+// Get Product theo id
+app.get("/products/:id", cors(), async (req, res) => {
+  var productId = req.params.id; // Không cần chuyển đổi thành string
+  const result = await productsCollection.find({ _id: productId }).toArray();
+  res.send(result[0]);
+});
 
 app.get("/fashions", cors(), async (reg, res)=>{
     const result = await fashionCollection.find({}).toArray();
