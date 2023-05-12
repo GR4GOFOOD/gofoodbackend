@@ -125,11 +125,10 @@ app.post("/users", cors(), async (req, res) => {
 
 
 // Xem thử user đã tồn tại trong tài khoản hay chưa?
-  app.get("/user",cors(),async (req,res)=>{
-    const result = await usersCollection.find({}).toArray();
-    res.send(result)
-    }
-    )
+app.get("/user",cors(),async (req,res)=>{
+  const result = await usersCollection.find({}).toArray();
+  res.send(result)} 
+)
   
 // app.post("/login",cors(),async(req,res)=>{
 //     username = req.body.username
@@ -265,22 +264,26 @@ if(req.session.carts!=null){
 res.send(req.session.cart)
 })
 
-// contact + support
-contactCollection = database.collection("Contact");
-// đặt tên colection trong database là Contact
-supportCollection = database.collection("Support");
-// đặt tên colection trong database là Support
+// products
+// đặt tên colection trong database là Products
+productCollection = database.collection("Products");
 
-app.post("/supports=contacts", cors(), async(req,res)=>{
-    await contactCollection.insertOne(req.body)
-    res.send(req.body)
-})
+//tìm kiếm thông tin sản phẩm theo tên sản phẩm
+app.get("/products/productName/:name", cors(), async (req, res) => {
+  const name = req.params.name;
+  const result = await productCollection.find({ productName : { $regex: new RegExp(name, "i") }}).toArray();
+  res.send(result);
+});
 
+// supports
+// đặt tên colection trong database là Supports
+supportCollection = database.collection("Supports");
+
+//nhận thông tin hỗ trợ từ người dùng
 app.post("/supports", cors(), async(req,res)=>{
     await supportCollection.insertOne(req.body)
     res.send(req.body)
 })
-
 
 database = client.db("PaymentData"); //kết nối tới database
 paymentCollection = database.collection("Payment"); //truy suất collection
