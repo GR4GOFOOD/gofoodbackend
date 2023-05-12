@@ -5,6 +5,7 @@ const morgan=require("morgan")
 app.use(morgan("combined"))
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
+
 const bodyParser=require("body-parser")
 app.use(bodyParser.json({limit: '10mb'}));
 app.use(bodyParser.urlencoded({extended: true, limit: '10mb'}));
@@ -90,8 +91,8 @@ app.post("/users", cors(), async (req, res) => {
     const { email, password } = req.body;
     console.log(email, password)
     // Kiểm tra trùng lặp username hoặc email trong cơ sở dữ liệu
-    const userCollection = database.collection("users");
-    const existingUser = await userCollection.findOne({
+    const usersCollection = database.collection("users");
+    const existingUser = await usersCollection.findOne({
       $or: [
         { email: email }
       ]
@@ -109,7 +110,7 @@ app.post("/users", cors(), async (req, res) => {
     const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
 
     // Lưu thông tin vào cơ sở dữ liệu
-    await userCollection.insertOne({
+    await usersCollection.insertOne({
       email: email,
       password: hash,
       salt: salt,
@@ -314,35 +315,43 @@ app.post("/paymentATMs",cors(),async(req,res)=>{
     //send message to client(send all database to client)
     res.send(req.body)
 })
-accountCollection = database.collection("Account");
-    app.get("/accounts",cors(),async (req,res)=>{
-        const result = await accountCollection.find({}).toArray();
-        res.send(result)
-        }
-        )
+usersCollection = database.collection("users");
+    // app.get("/u",cors(),async (req,res)=>{
+    //     const result = await usersCollection.find({}).toArray();
+    //     res.send(result)
+    //     }
+    //     )
       
-app.get("/accounts/:id",cors(),async (req,res)=>{
+app.get("/users/:id",cors(),async (req,res)=>{
         var o_id = req.params["id"];
-        const result = await accountCollection.find({_id:o_id}).toArray();
+        const result = await usersCollection.find({email:email}).toArray();
         res.send(result[0])
         }
         )
         
-app.post("/account",async(req,res)=>{
-          var crypto = require('crypto');
-          const salt = crypto.randomBytes(16).toString('hex');
+// app.post("/account",async(req,res)=>{
+//           var crypto = require('crypto');
+//           const salt = crypto.randomBytes(16).toString('hex');
       
-           accountCollection = database.collection("Account");
-           user= req.body
+//            accountCollection = database.collection("Account");
+//            user= req.body
       
-          const hash = crypto.pbkdf2Sync(user.password, salt, 1000, 64, `sha512`).toString(`hex`);
+//           const hash = crypto.pbkdf2Sync(user.password, salt, 1000, 64, `sha512`).toString(`hex`);
       
-          user.password=hash
-          user.salt=salt
+//           user.password=hash
+//           user.salt=salt
           
-          await accountCollection.insertOne(user)
-          res.send(req.body)
-      })
+//           await accountCollection.insertOne(user)
+//           res.send(req.body)
+//       })
+
+
+  app.use(session({
+    secret: 'your-secret-key', // Khóa bí mật để ký và mã hóa phiên
+    resave: false, // Không lưu lại phiên nếu không có thay đổi
+    saveUninitialized: false, // Không lưu các phiên chưa được khởi tạo
+  }));
+
  //Đăng nhập
 app.post("/login", cors(), async (req, res) => {
   const email = req.body.email;
@@ -358,12 +367,18 @@ app.post("/login", cors(), async (req, res) => {
     const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
 
     if (hash === user.password) {
+      req.session.loggedIn = true
+      req.session.user={
+        email:email,
+      };
       const response = {
         code: 200,
         message: "Đăng nhập thành công",
         data: user
+      
       };
       res.send(response);
+      
     } else {
       res.send({ "email": email, "password": password, "message": "wrong password" });
     }
@@ -372,7 +387,16 @@ app.post("/login", cors(), async (req, res) => {
   return res.send(1);
 });
 
-      
+app.get("/profile", (req, res) => {
+  // Kiểm tra xem người dùng đã đăng nhập hay chưa
+  if (req.session.loggedIn) {
+    // Người dùng đã đăng nhập, hiển thị trang hồ sơ
+    res.redirect("/account-detail");
+  } else {
+    // Người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
+    res.redirect("/login");
+  }
+});  
       
 app.put("/account", cors(), async (req, res) => {
         try {
