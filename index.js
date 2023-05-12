@@ -188,7 +188,7 @@ app.get("/products", cors(), async (reg, res)=>{
 // Get Product theo id
 app.get("/products/:id", cors(), async (req, res) => {
   var productId = req.params.id; // Không cần chuyển đổi thành string
-  const result = await productsCollection.find({ _id: productId }).toArray();
+  const result = await productsCollection.find({ productId: productId }).toArray();
   res.send(result[0]);
 });
 
