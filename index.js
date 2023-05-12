@@ -267,12 +267,12 @@ res.send(req.session.cart)
 
 // products
 // đặt tên colection trong database là Products
-productCollection = database.collection("Products");
+
 
 //tìm kiếm thông tin sản phẩm theo tên sản phẩm
 app.get("/products/productName/:name", cors(), async (req, res) => {
   const name = req.params.name;
-  const result = await productCollection.find({ productName : { $regex: new RegExp(name, "i") }}).toArray();
+  const result = await productsCollection.find({ productName : { $regex: new RegExp(name, "i") }}).toArray();
   res.send(result);
 });
 
